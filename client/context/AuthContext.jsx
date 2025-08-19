@@ -49,7 +49,7 @@ export const AuthProvider = ({children}) => {
 
     //logout function to handle user logout and socket disconnection
     const logout = async () => {
-        localStorage.removeItem("tken");
+        localStorage.removeItem("token");
         setToken(null);
         setAuthUser(null);
         setOnlineUsers([]);
@@ -66,8 +66,11 @@ export const AuthProvider = ({children}) => {
                 setAuthUser(data.user);
                 toast.success("Profile updated successfully")
             }
+            else{
+                toast.error(data.message || "Failed to update profile");
+            }
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.response?.data?.message || error.message);
         }
     }
 
