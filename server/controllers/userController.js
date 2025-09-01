@@ -49,7 +49,7 @@ export const login = async (req, res) => {
 
         const token = generateToken(userData._id)
 
-        res.json({success: true, userData, token, message: "Login successful"})
+        return res.json({success: true, userData, token, message: "Login successful"})
     } catch (error){
         console.log(error.message);
         
@@ -78,10 +78,21 @@ export const updateProfile = async (req, res) => {
             const upload = await cloudinary.uploader.upload(profilePic)
 
             updatedUser = await User.findByIdAndUpdate(userId, {profilePic: upload.secure_url, bio, fullName}, {new: true});
-            res.json({success: true, user: updatedUser})
+            return res.json({success: true, user: updatedUser})
         }
     } catch (error){
         console.log(error.message);
         res.json({success: false, message: error.message})
     }
 }
+
+// Get all users except the logged-in one
+export const getAllUsers = async (req, res) => {
+  try {
+    // req.user is set by protectRoute middleware
+    const users = await User.find({ _id: { $ne: req.user._id } }).select("-password");
+    return res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch users" });
+  }
+};

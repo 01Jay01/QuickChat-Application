@@ -7,12 +7,12 @@ import {io, userSocketMap} from "../server.js"
 export const getUsersForSidebar = async (req, res) => {
     try{
         const userId = req.user._id;
-        const filteredUsers = await UserActivation.find({_id: {$ne: userId}}).select("-password");
+        const filteredUsers = await User.find({_id: {$ne: userId}}).select("-password");
         
         //count number of messages not seen
         const unseenMessages = {}
         const promises = filteredUsers.map(async (user) => {
-            const messages = await MessageChannel.find({senderId: user._id, recieverId: userId, seen: false})
+            const messages = await Message.find({senderId: user._id, recieverId: userId, seen: false})
             if(messages.length > 0){
                 unseenMessages[user._id] = messages.length;
             }
