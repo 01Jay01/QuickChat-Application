@@ -9,7 +9,7 @@ export const ChatProvider = ({children}) => {
 
     const [messages, setMessages] = useState([]);
     const [users, setUsers] = useState([]);
-    const [selectedUsers, setSelectedUsers] = useState(null);
+    const [selectedUser, setSelectedUser] = useState(null);
     const [unseenMessages, setUnseenMessages] = useState({});
 
     const {socket, axios} = useContext(AuthContext);
@@ -43,9 +43,9 @@ export const ChatProvider = ({children}) => {
     //function to send message to selected user
     const sendMessage = async (messageData) => {
         try {
-            const {data} = await axios.post(`/api/messages/send/${selectedUsers._id}`, messageData);
+            const {data} = await axios.post(`/api/messages/send/${selectedUser._id}`, messageData);
             if(data.success){
-                setMessages((prevMessages) => [...prevMessages, data.newMessages])
+                setMessages((prevMessages) => [...prevMessages, data.newMessage])
             } else{
                 toast.error(data.message);
             }
@@ -59,7 +59,7 @@ export const ChatProvider = ({children}) => {
         if(!socket) return;
 
         socket.on("newMessage", (newMessage) => {
-            if(selectedUsers && newMessage.senderId === selectedUsers._id){
+            if(selectedUser && newMessage.senderId === selectedUser._id){
                 newMessage.seen = true;
                 setMessages((prevMessages) => [...prevMessages, newMessage]);
                 axios.put(`/api/messages/mark/${newMessage._id}`);
@@ -80,17 +80,16 @@ export const ChatProvider = ({children}) => {
     useEffect(() => {
         subscribeToMessages();
         return () => unsubscribeFromMessages();
-    }, [socket, selectedUsers])
+    }, [socket, selectedUser])
 
     const value = {
         messages,
         users,
-        selectedUsers,
+        selectedUser,
         getUsers,
         getMessages,
-        setMessages,
         sendMessage,
-        setSelectedUsers,
+        setSelectedUser,
         unseenMessages,
         setUnseenMessages
     }
